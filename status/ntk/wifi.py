@@ -62,7 +62,7 @@ class Wifi:
                     attr = getattr(ldap.entries[0], self.ldap_attr)
 
                     if attr is not None and len(attr) > 0:
-                        affi = '/'.join(attr)
+                        affi = '/'.join(sorted(attr))
 
                 cache[name] = affi
 
