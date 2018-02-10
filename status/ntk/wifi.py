@@ -35,6 +35,7 @@ class Wifi:
         ldap = Connection(self.ldap_host, self.ldap_bind, self.ldap_pass,
                           auto_bind=True)
 
+        cache = {}
         rows = []
         now = datetime.now()
         r = aruba.request_table('show station-table')
@@ -49,6 +50,9 @@ class Wifi:
             if '@' in name:
                 affi = '@' + name.rsplit('@', 1)[1]
 
+            elif name in cache:
+                affi = cache[name]
+
             else:
                 filter = self.ldap_filter.format(name=name)
                 ldap.search(self.ldap_base, filter,
@@ -59,6 +63,8 @@ class Wifi:
 
                     if attr is not None and len(attr) > 0:
                         affi = '/'.join(attr)
+
+                cache[name] = affi
 
             rows.append([now, dev, affi, ap, essid, phy])
 
