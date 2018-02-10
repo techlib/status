@@ -131,42 +131,15 @@ def cli_save(model, modules):
 
 
 def print_table(headers, rows, csv=False):
-    if isinstance(headers, dict):
-        rows = reorder_rows_by_headers(headers, rows)
-
     if csv:
-        if isinstance(headers, dict):
-            w = DictWriter(sys.stdout, dialect='unix',
-                           fieldnames=[h.lower() for h in headers])
+        w = writer(sys.stdout, dialect='unix')
+        w.writerow([h.lower() for h in headers])
 
-            w.writeheader()
-
-            for row in rows:
-                w.writerow({k.lower(): v for k, v in row.items()})
-
-        else:
-            w = writer(sys.stdout, dialect='unix')
-            w.writerow([h.lower() for h in headers])
-
-            for row in rows:
-                w.writerow(row)
+        for row in rows:
+            w.writerow(row)
 
     else:
         print(tabulate(rows, headers))
-
-
-def reorder_rows_by_headers(headers, rows):
-    new_rows = []
-
-    for row in rows:
-        new_row = OrderedDict()
-
-        for header in headers:
-            new_row[header] = row[header]
-
-        new_rows.append(new_row)
-
-    return new_rows
 
 
 if __name__ == '__main__':
