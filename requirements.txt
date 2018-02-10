@@ -1,0 +1,6 @@
+click
+ldap3
+psycopg2
+sqlsoup
+tabulate
+requests
