@@ -112,8 +112,10 @@ def cli_save(model, modules):
             print('Save {!r}'.format(module))
             tname, columns, rows = driver.collect()
             table = getattr(model.db, tname)
-            for row in rows:
+            for i, row in enumerate(rows):
                 table.insert(**dict(zip(columns, row)))
+                if i % 1000 == 0:
+                    model.db.flush()
 
         except:
             print_exc()
