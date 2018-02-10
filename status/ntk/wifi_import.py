@@ -44,6 +44,7 @@ class WifiImport:
 
                 time = fname.split('.')[0].replace('-', ':')
                 now = basename(path) + ' ' + time
+                now = datetime.strptime(now, '%Y-%m-%d %H:%M:%S')
 
                 with open(join(path, fname)) as fp:
                     rd = reader(fp)

@@ -1,14 +1,16 @@
 #!/usr/bin/python3 -tt
 # -*- coding: utf-8 -*-
 
+import io
 import sys
+
 import click
 
 from collections import OrderedDict
 from configparser import ConfigParser
 from csv import writer, DictWriter
 from importlib import import_module
-from sqlsoup import SQLSoup
+from psycopg2 import connect, sql
 from tabulate import tabulate
 from traceback import print_exc
 
@@ -24,7 +26,7 @@ class Model:
 
         # This does not actually connect to the database right away...
         # Only when we actually need it, i.e. for `save`.
-        self.db = SQLSoup(ini.get('general', 'db'))
+        self.db = connect(ini.get('general', 'db'))
 
         # Collection of module drivers.
         self.drivers = {}
@@ -110,21 +112,28 @@ def cli_save(model, modules):
 
         try:
             print('Save {!r}'.format(module))
-            tname, columns, rows = driver.collect()
-            table = getattr(model.db, tname)
-            for i, row in enumerate(rows):
-                table.insert(**dict(zip(columns, row)))
-                if i % 1000 == 0:
-                    model.db.flush()
+            table, columns, rows = driver.collect()
+
+            fp = io.StringIO()
+            wr = writer(fp, dialect='unix')
+
+            for row in rows:
+                wr.writerow(row)
+
+            fp.seek(0)
+
+            cq = ', '.join(['{}' for c in columns])
+            q = 'copy {} (%s) from stdin with csv' % (cq,)
+
+            cols = [sql.Identifier(c) for c in columns]
+            copy = sql.SQL(q).format(sql.Identifier(table), *cols)
+
+            model.db.cursor().copy_expert(copy, fp)
+            model.db.commit()
 
         except:
             print_exc()
             status = 1
-
-            model.db.rollback()
-
-        else:
-            model.db.commit()
 
     print('Done.')
     exit(status)
