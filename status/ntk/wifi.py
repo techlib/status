@@ -13,7 +13,7 @@ __all__ = ['Wifi']
 
 class Wifi:
     table = 'wifi_stations'
-    columns = ['ts', 'dev', 'affi', 'ap', 'essid', 'phy']
+    columns = ['ts', 'dev', 'affi', 'ap', 'essid', 'phy', 'user']
 
     def __init__(self, wifi_host, wifi_user, wifi_pass,
                        ldap_host, ldap_bind, ldap_pass, ldap_base, ldap_attr,
@@ -44,6 +44,7 @@ class Wifi:
             if not name:
                 continue
 
+            user = sha1(name.encode('utf8')).hexdigest()[:16]
             dev = sha1(mac.encode('utf8')).hexdigest()[:16]
             affi = ''
 
@@ -66,7 +67,7 @@ class Wifi:
 
                 cache[name] = affi
 
-            rows.append([now, dev, affi, ap, essid, phy])
+            rows.append([now, dev, affi, ap, essid, phy, user])
 
         return self.table, self.columns, rows
 

@@ -16,7 +16,7 @@ __all__ = ['WifiImport']
 
 class WifiImport:
     table = 'wifi_stations'
-    columns = ['ts', 'dev', 'affi', 'ap', 'essid', 'phy']
+    columns = ['ts', 'dev', 'affi', 'ap', 'essid', 'phy', 'user']
 
     def __init__(self, ldap_host, ldap_bind, ldap_pass, ldap_base, ldap_attr,
                        ldap_filter, import_path):
@@ -54,6 +54,7 @@ class WifiImport:
                     if not name:
                         continue
 
+                    user = sha1(name.encode('utf8')).hexdigest()[:16]
                     dev = sha1(mac.encode('utf8')).hexdigest()[:16]
                     affi = ''
 
@@ -76,7 +77,7 @@ class WifiImport:
 
                         cache[name] = affi
 
-                    rows.append([now, dev, affi, ap, essid, phy])
+                    rows.append([now, dev, affi, ap, essid, phy, user])
 
         return self.table, self.columns, rows
 
