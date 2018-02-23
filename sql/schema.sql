@@ -45,7 +45,8 @@ CREATE TABLE wifi_stations (
     affi character varying COLLATE pg_catalog."und-x-icu" NOT NULL,
     ap macaddr NOT NULL,
     essid character varying COLLATE pg_catalog."und-x-icu" NOT NULL,
-    phy character varying COLLATE pg_catalog."und-x-icu" NOT NULL
+    phy character varying COLLATE pg_catalog."und-x-icu" NOT NULL,
+    "user" character varying COLLATE pg_catalog."und-x-icu" DEFAULT '?'::character varying NOT NULL
 );
 
 
@@ -127,6 +128,13 @@ CREATE INDEX wifi_stations_phy_idx ON wifi_stations USING btree (phy COLLATE "de
 --
 
 CREATE INDEX wifi_stations_ts_idx ON wifi_stations USING btree (ts);
+
+
+--
+-- Name: wifi_stations_user_idx; Type: INDEX; Schema: public; Owner: status
+--
+
+CREATE INDEX wifi_stations_user_idx ON wifi_stations USING btree ("user");
 
 
 --
